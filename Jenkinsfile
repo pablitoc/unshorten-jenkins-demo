@@ -3,7 +3,7 @@ node {
     checkout scm
 
     env.DOCKER_API_VERSION="1.23"
-    
+
     sh "git rev-parse --short HEAD > commit-id"
 
     tag = readFile('commit-id').replace("\n", "").replace("\r", "")
@@ -22,9 +22,9 @@ node {
     stage "Scan Docker Image"
 
     stage "Source Code Static Analysis"
-        
+
     stage "Kubernetes Analysis"
-        sh 'kubectl run --rm -i -t kube-bench-node --image=aquasec/kube-bench:latest --restart=Never --overrides="{ \\"apiVersion\\": \\"v1\\", \\"spec\\": { \\"hostPID\\": true } }" -- node --version 1.8'
+        sh 'kubectl run --rm kube-bench-node --image=aquasec/kube-bench:latest --restart=Never --overrides="{ \\"apiVersion\\": \\"v1\\", \\"spec\\": { \\"hostPID\\": true } }" -- node --version 1.8'
 
     stage "Deploy"
         sh "sed 's#127.0.0.1:30400/link-unshorten:latest#'$BUILDIMG'#' k8s/deployment.yaml | kubectl apply -f -"
